@@ -1,0 +1,21 @@
+version: '3.8'
+
+networks:
+  hypcttnetwork:
+services:
+  cautm1:
+    image: hyperledger/fabric-ca:1.4.6
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=cautm1
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.hypctt.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.hypctt.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/priv_sk -b admin:adminpw -d'
+    volumes:
+      - ../../crypto-config/peerOrganizations/org1.hypctt.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: cautm1
+    networks:
+      - hypcttnetwork

@@ -1,0 +1,20 @@
+OrdererOrgs:
+  - Name: OrdererOrg
+    Domain: hypctt.com 
+    Specs:
+      - Hostname: orderer1 
+    # OrganizationalUnitIdentifiers:
+    #   - C: US
+    #     ST: California
+    #     L: San Francisco
+    #     O: Hyperledger
+    #     OU: Orderer
+
+PeerOrgs:
+  - Name: org1
+    Domain: org1.hypctt.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1 

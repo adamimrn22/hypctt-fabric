@@ -294,6 +294,8 @@ Application: &ApplicationDefaults
 ################################################################################
 Orderer: &OrdererDefaults
 
+    Addresses:
+        - orderer1.hypctt.com:7050
     # EtcdRaft defines configuration which must be set when the "etcdraft"
     # orderertype is chosen.
     EtcdRaft:

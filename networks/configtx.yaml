@@ -112,6 +112,67 @@ Organizations:
         AnchorPeers:
             - Host: peer0.org1.hypctt.com
               Port: 7051
+    
+    - &org2
+        # Name is the key by which this org will be referenced in channel
+        # configuration transactions.
+        # Name can include alphanumeric characters as well as dots and dashes.
+        Name: org2MSP
+
+        # SkipAsForeign can be set to true for org definitions which are to be
+        # inherited from the orderer system channel during channel creation.  This
+        # is especially useful when an admin of a single org without access to the
+        # MSP directories of the other orgs wishes to create a channel.  Note
+        # this property must always be set to false for orgs included in block
+        # creation.
+        SkipAsForeign: false
+
+        # ID is the key by which this org's MSP definition will be referenced.
+        # ID can include alphanumeric characters as well as dots and dashes.
+        ID: org2MSP
+
+        # MSPDir is the filesystem path which contains the MSP configuration.
+        MSPDir: crypto-config/peerOrganizations/org2.hypctt.com/msp
+
+        # Policies defines the set of policies at this level of the config tree
+        # For organization policies, their canonical path is usually
+        #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+        Policies: &Org2Policies
+            Readers:
+                Type: Signature
+                Rule: "OR('org2MSP.admin', 'org2MSP.peer', 'org2MSP.client')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('org2MSP.admin', 'org2MSP.client')"
+                # If your MSP is configured with the new NodeOUs, you might
+                # want to use a more specific rule like the following:
+                # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('org2MSP.admin')"
+
+            Endorsement:
+                Type: Signature
+                Rule: "OR('org2MSP.member')"
+
+        # OrdererEndpoints is a list of all orderers this org runs which clients
+        # and peers may to connect to to push transactions and receive blocks respectively.
+        OrdererEndpoints:
+            - "orderer1.hypctt.com:7050"
+
+        # AnchorPeers defines the location of peers which can be used for
+        # cross-org gossip communication.
+        #
+        # NOTE: this value should only be set when using the deprecated
+        # `configtxgen --outputAnchorPeersUpdate` command. It is recommended
+        # to instead use the channel configuration update process to set the
+        # anchor peers for each organization.
+        AnchorPeers:
+            - Host: peer0.org2.hypctt.com
+              Port: 7061
 
 ################################################################################
 #
@@ -478,5 +539,27 @@ Profiles:
                       Admins:
                           Type: Signature
                           Rule: "OR('org1.member')"
+            Capabilities:
+                <<: *ApplicationCapabilities
+
+    AppOrg2ChannelEtcdRaft:
+        <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            OrdererType: etcdraft
+            Organizations:
+                - <<: *OrdererOrg
+            Capabilities:
+                <<: *OrdererCapabilities
+
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - <<: *org2
+                  Policies:
+                      <<: *Org2Policies
+                      Admins:
+                          Type: Signature
+                          Rule: "OR('org2.member')"
             Capabilities:
                 <<: *ApplicationCapabilities

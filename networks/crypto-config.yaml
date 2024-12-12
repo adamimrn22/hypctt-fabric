@@ -18,3 +18,11 @@ PeerOrgs:
       Count: 2
     Users:
       Count: 1 
+
+  - Name: org2
+    Domain: org2.hypctt.com
+    EnableNodeOUs: true
+    Template:
+      Count: 2
+    Users:
+      Count: 1 

@@ -1,0 +1,147 @@
+version: '3.8'
+
+volumes:
+  peer0.org2.hypctt.com:
+  peer1.org2.hypctt.com:
+
+networks:
+  hypcttnetwork:
+services:
+  peer0.org2.hypctt.com:
+    container_name: peer0.org2.hypctt.com
+    image: hyperledger/fabric-peer:2.5.9
+    restart: always
+    environment: 
+      # TLS
+      - CORE_PEER_TLS_ENABLED=true 
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+
+      # PEER ENV
+      - CORE_PEER_ID=peer0.org2.hypctt.com
+      - CORE_PEER_ADDRESS=peer0.org2.hypctt.com:7061
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7061
+      - CORE_LOGLEVEL=DEBUG
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.hypctt.com:7062
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7062
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.hypctt.com:7061
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.hypctt.com:7061
+      - CORE_PEER_LOCALMSPID=org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.org2.hypctt.com:9544
+      - CORE_METRICS_PROVIDER=prometheus
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org2"}
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=hypctt_hypcttnetwork
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      # - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.org2:5984
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    # depends_on:
+    #   - couchdb0.org2
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../../crypto-config/peerOrganizations/org2.hypctt.com/peers/peer0.org2.hypctt.com/msp:/etc/hyperledger/fabric/msp
+        - ../../crypto-config/peerOrganizations/org2.hypctt.com/peers/peer0.org2.hypctt.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.org2.hypctt.com:/var/hyperledger/production
+    ports:
+      - 7061:7061
+      - 7062:7062 
+      - 9544:9544
+    networks:
+      - hypcttnetwork
+
+  peer1.org2.hypctt.com:
+    container_name: peer1.org2.hypctt.com
+    image: hyperledger/fabric-peer:2.5.9
+    restart: always
+    environment:
+      #TLS 
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+
+      - CORE_PEER_ID=peer1.org2.hypctt.com
+      - CORE_PEER_ADDRESS=peer1.org2.hypctt.com:8061
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8061
+      - CORE_PEER_CHAINCODEADDRESS=peer1.org2.hypctt.com:8062
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8062
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.hypctt.com:7061
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.hypctt.com:8061
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true 
+      - CORE_PEER_LOCALMSPID=org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - CORE_OPERATIONS_LISTENADDRESS=peer1.org2.hypctt.com:9545
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGLEVEL=DEBUG
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=hypctt_hypcttnetwork
+      - FABRIC_LOGGING_SPEC=INFO
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      # - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1.org2:5984
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      # - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=    
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../../crypto-config/peerOrganizations/org2.hypctt.com/peers/peer1.org2.hypctt.com/msp:/etc/hyperledger/fabric/msp
+        - ../../crypto-config/peerOrganizations/org2.hypctt.com/peers/peer1.org2.hypctt.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.org2.hypctt.com:/var/hyperledger/production
+    ports:
+      - 8061:8061
+      - 8062:8062
+      - 9545:9545
+    networks:
+      - hypcttnetwork 
+
+  cliorg2:
+    container_name: cliorg2
+    image: hyperledger/fabric-tools:2.5.9
+    tty: true
+    stdin_open: true
+    restart: on-failure
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock 
+      - CORE_PEER_ID=peer1.org2.hypctt.com
+      - CORE_PEER_ADDRESS=peer1.org2.hypctt.com:8061
+      - CORE_PEER_LOCALMSPID=org2MSP
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/crypto/peerOrganizations/org2.hypctt.com/users/Admin@org2.hypctt.com/msp
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/crypto/peerOrganizations/org2.hypctt.com/peers/peer1.org2.hypctt.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/crypto/peerOrganizations/org2.hypctt.com/peers/peer1.org2.hypctt.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/crypto/peerOrganizations/org2.hypctt.com/peers/peer1.org2.hypctt.com/tls/ca.crt
+
+      - ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/crypto/ordererOrganizations/hypctt.com/orderers/orderer1.hypctt.com/tls/ca.crt
+      - ADMIN_CERT=/opt/gopath/src/github.com/hyperledger/fabric/crypto/ordererOrganizations/hypctt.com/users/Admin@hypctt.com/tls/client.crt
+      - ADMIN_KEY=/opt/gopath/src/github.com/hyperledger/fabric/crypto/ordererOrganizations/hypctt.com/users/Admin@hypctt.com/tls/client.key
+      - ORDERER_ADDRESS=orderer1.hypctt.com:7050 
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../../chaincode:/opt/gopath/src/github.com/chaincode
+        - ../../crypto-config/peerOrganizations:/opt/gopath/src/github.com/hyperledger/fabric/crypto/peerOrganizations
+        - ../../crypto-config/ordererOrganizations:/opt/gopath/src/github.com/hyperledger/fabric/crypto/ordererOrganizations
+        - ../../channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/channel-artifacts 
+        - ../../scripts:/opt/gopath/src/github.com/hyperledger/fabric/scripts
+    depends_on:
+      - peer0.org2.hypctt.com
+    networks:
+      - hypcttnetwork 

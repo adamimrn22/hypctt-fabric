@@ -37,7 +37,7 @@ export ORDERER_ADDRESS=orderer1.hypctt.com:7050
 ```
 Approve Organization
 ```bash
-peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name $CHAINCODE_NAME -version $VERSION --package-id $PACKAGE_ID --sequence $SEQUENCE --tls --cafile $ORDERER_CA
+peer lifecycle chaincode approveformyorg --channelID $CHANNEL_NAME --name $CHAINCODE_NAME --version $VERSION --package-id $PACKAGE_ID --sequence $SEQUENCE --tls --cafile $ORDERER_CA
 ```
 
 Chaincode Commit

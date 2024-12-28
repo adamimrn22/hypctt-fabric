@@ -17,10 +17,10 @@ async function loadClientConnectionDetails() {
     const certPath = path.resolve(__dirname, '../../crypto-config/peerOrganizations/org1.hypctt.com/users/User1@org1.hypctt.com/msp');
 
     return {
-        tlsCertPath: path.resolve(__dirname, '../../crypto-config/peerOrganizations/org1.hypctt.com/peers/peer0.org1.hypctt.com/tls/ca.crt'),
+        tlsCertPath: path.resolve(__dirname, '../../crypto-config/peerOrganizations/org1.hypctt.com/peers/peer1.org1.hypctt.com/tls/ca.crt'),
         certPath: path.join(certPath, 'signcerts/User1@org1.hypctt.com-cert.pem'),
         keyPath: path.join(certPath, 'keystore/priv_sk'),
-        peerEndpoint: 'localhost:7051', // Adjust to your peer endpoint
+        peerEndpoint: 'localhost:8051', // Adjust to your peer endpoint
         mspId: 'org1MSP', // Adjust as per your MSP
         channelName: 'channel1', // Adjust as per your channel name
         chaincodeName: 'basic' // Adjust to your chaincode name
@@ -98,6 +98,44 @@ app.post('/init-ledger', fabricGatewayMiddleware, async (req, res) => {
     }
 });
 
+app.get('/getAllAssets', fabricGatewayMiddleware, async (req, res) => {
+    let gateway; // Declare gateway variable for cleanup
+    try {
+        gateway = req.gateway;
+
+        // Evaluate transaction
+        const result = await req.contract.evaluateTransaction('GetAllAssets');
+
+        // Check the type of result (it should be a Buffer)
+        console.log('Raw result type:', typeof result);  // Should print 'object' (Buffer)
+        console.log('Raw result buffer:', result);  // Should print the binary Buffer
+
+        // Decode the result buffer as a UTF-8 string
+        const resultString = Buffer.from(result).toString('utf8');
+        console.log('Decoded result from chaincode:', resultString);  // Check decoded result
+
+        // Parse the string into JSON (you should see the actual JSON here)
+        const assets = JSON.parse(resultString);
+
+        // Send a successful response
+        res.json({
+            success: true,
+            assets: assets,
+        });
+    } catch (error) {
+        console.error('Get All Assets Error:', error);
+
+        // Send an error response
+        res.status(500).json({ success: false, error: error.message });
+    } finally {
+        // Close the gateway connection in the 'finally' block
+        if (gateway) {
+            await gateway.close();
+        }
+    }
+});
+
+
 // Endpoint to create a new asset
 app.post('/assets', fabricGatewayMiddleware, async (req, res) => {
     try {
@@ -133,78 +171,6 @@ app.get('/assets/:id', fabricGatewayMiddleware, async (req, res) => {
         });
     } catch (error) {
         console.error('Read Asset Error:', error);
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Endpoint to update an asset
-app.put('/assets/:id', fabricGatewayMiddleware, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { color, size, owner, appraisedValue } = req.body;
-        const result = await req.contract.submitTransaction(
-            'UpdateAsset',
-            id,
-            color,
-            size.toString(),
-            owner,
-            appraisedValue.toString()
-        );
-        await req.gateway.close();
-        res.json({
-            success: true,
-            message: `Asset ${id} updated successfully`
-        });
-    } catch (error) {
-        console.error('Update Asset Error:', error);
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Endpoint to delete an asset
-app.delete('/assets/:id', fabricGatewayMiddleware, async (req, res) => {
-    try {
-        const { id } = req.params;
-        await req.contract.submitTransaction('DeleteAsset', id);
-        await req.gateway.close();
-        res.json({
-            success: true,
-            message: `Asset ${id} deleted successfully`
-        });
-    } catch (error) {
-        console.error('Delete Asset Error:', error);
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Endpoint to transfer an asset
-app.post('/assets/:id/transfer', fabricGatewayMiddleware, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { newOwner } = req.body;
-        const result = await req.contract.submitTransaction('TransferAsset', id, newOwner);
-        await req.gateway.close();
-        res.json({
-            success: true,
-            oldOwner: result.toString()
-        });
-    } catch (error) {
-        console.error('Transfer Asset Error:', error);
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-// Endpoint to get all assets
-app.get('/assets', fabricGatewayMiddleware, async (req, res) => {
-    try {
-        const result = await req.contract.evaluateTransaction('GetAllAssets');
-        await req.gateway.close();
-        res.json({
-            success: true,
-            assets: JSON.parse(result.toString())
-        });
-    } catch (error) {
-        console.error('Get All Assets Error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

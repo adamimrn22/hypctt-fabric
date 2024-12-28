@@ -5,6 +5,8 @@ volumes:
 
 networks:
   hypcttnetwork:
+      name: hypctt_hypcttnetwork
+      
 services:
   orderer1.hypctt.com:
     container_name: orderer1.hypctt.com
@@ -15,8 +17,10 @@ services:
       - ORDERER_GENERAL_LISTENPORT=7050
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
-      
       - ORDERER_GENERAL_BOOTSTRAPMETHOD=none 
+
+      - ORDERER_GENERAL_ORDERERTYPE=etcdraft
+
       # enabled TLS
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
@@ -33,7 +37,8 @@ services:
       - ORDERER_ADMIN_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_ADMIN_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
       - ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/var/hyperledger/orderer/admin/tls/ca.crt]
-      # - ORDERER_OPERATIONS_LISTENADDRESS=orderer1.hypctt.com:9443
+      - ORDERER_ADMIN_TLS_CLIENT_AUTH_REQUIRED=true 
+      - ORDERER_CHANNEL_PARTICIPATION_ENABLED=true
 
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric
     command: orderer
@@ -44,7 +49,6 @@ services:
       - orderer1.hypctt.com:/var/hyperledger/production/orderer
     ports:
       - 7050:7050
-      - 7053:7053
-      # - 9443:9443
+      - 7053:7053 
     networks:
       - hypcttnetwork 

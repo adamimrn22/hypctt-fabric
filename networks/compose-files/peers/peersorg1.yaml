@@ -6,6 +6,8 @@ volumes:
 
 networks:
   hypcttnetwork:
+      name: hypctt_hypcttnetwork
+
 services:
   peer0.org1.hypctt.com:
     container_name: peer0.org1.hypctt.com
@@ -36,20 +38,10 @@ services:
       - CORE_METRICS_PROVIDER=prometheus
       - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0org1"}
       - CORE_CHAINCODE_EXECUTETIMEOUT=300s
-      # the following setting starts chaincode containers on the same
-      # bridge network as the peers
-      # https://docs.docker.com/compose/networking/
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=hypctt_hypcttnetwork
       - FABRIC_LOGGING_SPEC=INFO
-      #- FABRIC_LOGGING_SPEC=DEBUG
-      # - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      # - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0.org1:5984
-      # - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
-      # - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
-    # depends_on:
-    #   - couchdb0.org1
     volumes:
         - /var/run/:/host/var/run/
         - ../../crypto-config/peerOrganizations/org1.hypctt.com/peers/peer0.org1.hypctt.com/msp:/etc/hyperledger/fabric/msp
@@ -87,16 +79,8 @@ services:
       - CORE_OPERATIONS_LISTENADDRESS=peer1.org1.hypctt.com:9445
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGLEVEL=DEBUG
-      # the following setting starts chaincode containers on the same
-      # bridge network as the peers
-      # https://docs.docker.com/compose/networking/
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=hypctt_hypcttnetwork
-      - FABRIC_LOGGING_SPEC=INFO
-      #- FABRIC_LOGGING_SPEC=DEBUG
-      # - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      # - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1.org1:5984
-      # - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
-      # - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=    
+      - FABRIC_LOGGING_SPEC=INFO 
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     volumes:
@@ -141,7 +125,5 @@ services:
         - ../../crypto-config/ordererOrganizations:/opt/gopath/src/github.com/hyperledger/fabric/crypto/ordererOrganizations
         - ../../channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/channel-artifacts 
         - ../../scripts:/opt/gopath/src/github.com/hyperledger/fabric/scripts
-    depends_on:
-      - peer0.org1.hypctt.com
     networks:
       - hypcttnetwork 

@@ -6,6 +6,8 @@ volumes:
 
 networks:
   hypcttnetwork:
+      name: hypctt_hypcttnetwork
+      
 services:
   peer0.org2.hypctt.com:
     container_name: peer0.org2.hypctt.com

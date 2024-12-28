@@ -85,7 +85,7 @@ Organizations:
                 # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('org1MSP.admin', 'org1MSP.client')"
+                Rule: "OR('org1MSP.admin', 'org1MSP.client', 'org1MSP.member')"
                 # If your MSP is configured with the new NodeOUs, you might
                 # want to use a more specific rule like the following:
                 # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
@@ -95,7 +95,7 @@ Organizations:
 
             Endorsement:
                 Type: Signature
-                Rule: "OR('org1MSP.member')"
+                Rule: "OR('org1MSP.peer', 'org1MSP.member')"
 
         # OrdererEndpoints is a list of all orderers this org runs which clients
         # and peers may to connect to to push transactions and receive blocks respectively.
@@ -156,7 +156,7 @@ Organizations:
 
             Endorsement:
                 Type: Signature
-                Rule: "OR('org2MSP.member')"
+                Rule: "OR('org2MSP.peer')"
 
         # OrdererEndpoints is a list of all orderers this org runs which clients
         # and peers may to connect to to push transactions and receive blocks respectively.
@@ -457,7 +457,7 @@ Channel: &ChannelDefaults
     # description
     Capabilities:
         <<: *ChannelCapabilities
-
+ 
 ################################################################################
 #
 #   PROFILES
@@ -471,95 +471,24 @@ Channel: &ChannelDefaults
 #
 ################################################################################
 Profiles:
-
-    # SampleSingleMSPChannel defines a channel with only the sample org as a
-    # member. It is designed to be used in conjunction with SampleSingleMSPSolo
-    # and SampleSingleMSPKafka orderer profiles.   Note, for channel creation
-    # profiles, only the 'Application' section and consortium # name are
-    # considered.
-    SampleSingleMSPChannel:
-        <<: *ChannelDefaults
-        Consortium: SampleConsortium
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - <<: *org1
-
-    # SampleDevModeEtcdRaft defines a configuration that differs from the
-    # SampleDevModeSolo one only in that it uses the etcd/raft-based orderer.
-    ModeEtcdRaft:
-        <<: *ChannelDefaults
-        Orderer:
-            <<: *OrdererDefaults
-            OrdererType: etcdraft
-            Organizations:
-                - <<: *OrdererOrg
-                  Policies:
-                      <<: *OrdererOrgPolicies
-                      Admins:
-                          Type: Signature
-                          Rule: "OR('ordererMSP.admin')"
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - <<: *org1
-                  Policies:
-                      <<: *Org1Policies
-                      Admins:
-                          Type: Signature
-                          Rule: "OR('org1.member')"
-        Consortiums:
-            SampleConsortium:
-                Organizations:
-                    - <<: *org1
-                      Policies:
-                          <<: *Org1Policies
-                          Admins:
-                              Type: Signature
-                              Rule: "OR('org1.member')"
-
-    # SampleAppChannelEtcdRaft defines an application channel configuration
-    # that uses the etcd/raft-based orderer.
-    AppOrg1ChannelEtcdRaft:
-        <<: *ChannelDefaults
-        Orderer:
-            <<: *OrdererDefaults
-            OrdererType: etcdraft
-            Organizations:
-                - <<: *OrdererOrg
-            Capabilities:
-                <<: *OrdererCapabilities
-
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - <<: *org1
-                  Policies:
-                      <<: *Org1Policies
-                      Admins:
-                          Type: Signature
-                          Rule: "OR('org1.member')"
-            Capabilities:
-                <<: *ApplicationCapabilities
-
-    AppOrg2ChannelEtcdRaft:
-        <<: *ChannelDefaults
-        Orderer:
-            <<: *OrdererDefaults
-            OrdererType: etcdraft
-            Organizations:
-                - <<: *OrdererOrg
-            Capabilities:
-                <<: *OrdererCapabilities
-
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - <<: *org2
-                  Policies:
-                      <<: *Org2Policies
-                      Admins:
-                          Type: Signature
-                          Rule: "OR('org2.member')"
-            Capabilities:
-                <<: *ApplicationCapabilities
+  AppChannelEtcdRaft:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      OrdererType: etcdraft
+      Organizations:
+        - <<: *OrdererOrg
+          Policies:
+            <<: *OrdererOrgPolicies
+            Admins:
+              Type: Signature
+              Rule: "OR('ordererMSP.member')"
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - <<: *org1
+          Policies:
+            <<: *Org1Policies
+            Admins:
+              Type: Signature
+              Rule: "OR('org1.member')"

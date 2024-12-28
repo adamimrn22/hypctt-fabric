@@ -55,14 +55,9 @@ Go to the installed chaincode path
 cd ../../chaincode
 ```
 
-Installed the chaincode
+Installed the chaincode **make sure install for both peer first before commit**
 ```bash
 peer lifecycle chaincode install basic.tar.gz
-```
-
-Commit the chaincode
-```bash
-peer lifecycle chaincode commit --channelID $CHANNEL_NAME --name $CHAINCODE_NAME --version $VERSION --sequence $SEQUENCE -o $ORDERER_ADDRESS --tls --cafile $ORDERER_CA --peerAddresses $CORE_PEER_ADDRESS --tlsRootCertFiles $CORE_PEER_TLS_ROOTCERT_FILE  
 ```
 
 Invoke the Chaincode
